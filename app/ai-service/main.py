@@ -45,6 +45,7 @@ from schemas.humanitarian import (
     HumanitarianVerificationResponse,
 )
 from services.humanitarian_verification import HumanitarianVerificationService
+from services.confidence_explanation import derive_confidence_explanation
 from services.evidence_access_control import EvidenceAccessControl
 from services.decision_audit import build_store_from_settings, set_store
 
@@ -835,7 +836,13 @@ async def _legacy_verify_humanitarian_claim(request: HumanitarianVerificationReq
                 )
             else:
                 raise exc
-        return HumanitarianVerificationResponse(success=True, **result)
+        return HumanitarianVerificationResponse(
+            success=True,
+            confidence_explanation=derive_confidence_explanation(
+                result.get("verification")
+            ),
+            **result,
+        )
     except Exception as e:
         logger.error("Humanitarian verification failed: %s", str(e), exc_info=True)
         return HumanitarianVerificationResponse(success=False, error=str(e))
