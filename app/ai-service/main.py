@@ -836,6 +836,10 @@ async def _legacy_verify_humanitarian_claim(request: HumanitarianVerificationReq
                 )
             else:
                 raise exc
+        # Surface the model's own reasoning as a short confidence explanation
+        # alongside the numeric score; None (omitted from the envelope) when the
+        # provider response carries no structured factors to derive from, so we
+        # never fabricate an explanation.
         return HumanitarianVerificationResponse(
             success=True,
             confidence_explanation=derive_confidence_explanation(
